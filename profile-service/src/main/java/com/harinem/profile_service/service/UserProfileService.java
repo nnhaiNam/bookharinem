@@ -40,8 +40,8 @@ public class UserProfileService {
 
     }
 
-    public List<UserProfile> getAll(){
-        return userProfileRepository.findAll();
+    public List<UserProfileCreationResponse> getAll(){
+        return userProfileRepository.findAll().stream().map(userProfileMapper::toUserProfileCreationResponse).toList();
     }
 
 
