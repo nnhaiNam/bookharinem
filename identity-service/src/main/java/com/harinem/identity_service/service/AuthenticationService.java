@@ -57,11 +57,6 @@ public class AuthenticationService {
         var token = request.getToken();
         boolean isValid = true;
 
-//        try {
-//            verifyToken(token,false);
-//        } catch (AppException e) {
-//            isValid = false;
-//        }
 
         try {
             verifyToken(token, false);
