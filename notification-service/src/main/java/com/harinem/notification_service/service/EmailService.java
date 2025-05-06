@@ -18,7 +18,9 @@ import java.util.List;
 public class EmailService {
 
     EmailClient emailClient;
-    String apiKey="key-here";
+
+    String apiKey="apikey-here";
+
 
     public EmailResponse sendEmail(SendEmailRequest request){
         return emailClient.sendEmail(apiKey, EmailRequest.builder()
