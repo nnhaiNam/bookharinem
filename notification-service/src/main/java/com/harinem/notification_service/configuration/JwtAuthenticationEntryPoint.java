@@ -1,8 +1,8 @@
-package com.harinem.profile_service.configuration;
+package com.harinem.notification_service.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.harinem.profile_service.dto.response.ApiResponse;
-import com.harinem.profile_service.exception.ErrorCode;
+import com.harinem.notification_service.dto.response.ApiResponse;
+import com.harinem.notification_service.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +28,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         ObjectMapper objectMapper=new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
         response.flushBuffer();
+
 
 
     }

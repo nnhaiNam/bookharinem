@@ -1,4 +1,4 @@
-package com.harinem.profile_service.configuration;
+package com.harinem.notification_service.configuration;
 
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -10,19 +10,21 @@ import java.text.ParseException;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-
     @Override
     public Jwt decode(String token) throws JwtException {
-
-        try {
+        try{
             SignedJWT signedJWT=SignedJWT.parse(token);
+
             return new Jwt(token,
                     signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
                     signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
                     signedJWT.getHeader().toJSONObject(),
-                    signedJWT.getJWTClaimsSet().getClaims());
-        } catch (ParseException e) {
-            throw new JwtException("Invalid token!!");
+                    signedJWT.getJWTClaimsSet().getClaims()
+            );
+
+
+        }catch (ParseException e){
+            throw new JwtException("Invalid token!");
         }
     }
 }
