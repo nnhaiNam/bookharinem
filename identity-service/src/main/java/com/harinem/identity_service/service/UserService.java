@@ -1,6 +1,7 @@
 package com.harinem.identity_service.service;
 
 
+import com.harinem.event.dto.NotificationEvent;
 import com.harinem.identity_service.constant.PredefinedRole;
 import com.harinem.identity_service.dto.request.UserCreationRequest;
 import com.harinem.identity_service.dto.request.UserUpdateRequest;
@@ -42,7 +43,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     ProfileClient profileClient;
     ProfileMapper profileMapper;
-    KafkaTemplate<String,String> kafkaTemplate;
+    KafkaTemplate<String,Object> kafkaTemplate;
 
     public UserCreationResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
@@ -64,8 +65,16 @@ public class UserService {
 
         var profileResponse=profileClient.createProfile(profileRequest);
 
+        //Build notification events
+        NotificationEvent notificationEvent= NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to book-harinem!!")
+                .body("Hello "+request.getUsername()+" !")
+                .build();
+
         //Publish message to Kafka
-        kafkaTemplate.send("onboard-successful","Welcome our new member "+user.getUsername());
+        kafkaTemplate.send("notification-delivery",notificationEvent);
 
         return userMapper.toUserCreationResponse(user,profileResponse);
     }

@@ -1,0 +1,48 @@
+package com.harinem.post_service.service;
+
+import com.harinem.post_service.dto.request.PostRequest;
+import com.harinem.post_service.dto.response.PostResponse;
+import com.harinem.post_service.entity.Post;
+import com.harinem.post_service.mapper.PostMapper;
+import com.harinem.post_service.repository.PostRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.List;
+
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Service
+public class PostService {
+
+    PostRepository postRepository;
+    PostMapper postMapper;
+    public PostResponse createPost(PostRequest request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId=authentication.getName();
+        Post post= Post.builder()
+                .userId(userId)
+                .content(request.getContent())
+                .createdDate(Instant.now())
+                .modifiedDate(Instant.now())
+                .build();
+
+        post=postRepository.save(post);
+        return postMapper.toPostResponse(post);
+
+    }
+
+    public List<PostResponse> getMyPosts(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId=authentication.getName();
+
+        return postRepository.findAllByUserId(userId).stream().map(postMapper::toPostResponse).toList();
+
+
+    }
+}

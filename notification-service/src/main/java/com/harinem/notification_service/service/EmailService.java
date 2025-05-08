@@ -8,6 +8,8 @@ import com.harinem.notification_service.repository.httpclient.EmailClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +21,9 @@ public class EmailService {
 
     EmailClient emailClient;
 
-    String apiKey="apikey-here";
-
+    @Value("${notification.email.brevo-apikey}")
+    @NonFinal
+    String apiKey;
 
     public EmailResponse sendEmail(SendEmailRequest request){
         return emailClient.sendEmail(apiKey, EmailRequest.builder()

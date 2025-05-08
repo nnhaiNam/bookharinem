@@ -21,6 +21,8 @@ public interface UserMapper {
             @Mapping(source = "user.id", target = "id"),
             @Mapping(source = "user.username", target = "username"),
             @Mapping(source = "user.roles",target = "roles"),
+            @Mapping(source = "user.email",target = "email"),
+            @Mapping(source = "user.emailVerified",target = "emailVerified"),
             @Mapping(source = "profile.firstName", target = "firstName"),
             @Mapping(source = "profile.lastName", target = "lastName"),
             @Mapping(source = "profile.dob", target = "dob")

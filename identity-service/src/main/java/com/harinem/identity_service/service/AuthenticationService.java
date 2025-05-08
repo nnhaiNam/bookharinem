@@ -154,7 +154,7 @@ public class AuthenticationService {
                 .toEpochMilli());
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
+                .subject(user.getId())
                 .issuer("harinem.com")
                 .issueTime(issueTime)
                 .expirationTime(expiryTime)
