@@ -4,6 +4,8 @@ import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
 import com.harinem.profile_service.dto.response.UserProfileCreationResponse;
 import com.harinem.profile_service.dto.response.UserProfileResponse;
 import com.harinem.profile_service.entity.UserProfile;
+import com.harinem.profile_service.exception.AppException;
+import com.harinem.profile_service.exception.ErrorCode;
 import com.harinem.profile_service.mapper.UserProfileMapper;
 import com.harinem.profile_service.repository.UserProfileRepository;
 import lombok.AccessLevel;
@@ -34,7 +36,7 @@ public class UserProfileService {
 
     public UserProfileCreationResponse getProfile(String id){
         UserProfile userProfile=userProfileRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("Profile not found!")
+                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED)
         );
 
         return userProfileMapper.toUserProfileCreationResponse(userProfile);
@@ -49,8 +51,16 @@ public class UserProfileService {
     public UserProfileResponse getMyProfile(){
         var authentication= SecurityContextHolder.getContext().getAuthentication();
         String userId= authentication.getName();
-        var profile=userProfileRepository.findByUserId(userId);
+        var profile=userProfileRepository.findByUserId(userId).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
         return userProfileMapper.toUserProfileResponse(profile);
+    }
+
+    public UserProfileResponse getProfileByUserId(String userId){
+        UserProfile userProfile =
+                userProfileRepository.findByUserId(userId).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userProfileMapper.toUserProfileResponse(userProfile);
+
     }
 
 
