@@ -1,4 +1,4 @@
-package com.harinem.profile_service.dto.request;
+package com.harinem.profile_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,13 +10,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserProfileCreationRequest {
-    String userId;
+public class UserProfileResponse {
+    String id;
     String username;
     String email;
     String firstName;
     String lastName;
     LocalDate dob;
     String city;
-
 }

@@ -2,6 +2,7 @@ package com.harinem.profile_service.service;
 
 import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
 import com.harinem.profile_service.dto.response.UserProfileCreationResponse;
+import com.harinem.profile_service.dto.response.UserProfileResponse;
 import com.harinem.profile_service.entity.UserProfile;
 import com.harinem.profile_service.mapper.UserProfileMapper;
 import com.harinem.profile_service.repository.UserProfileRepository;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,13 +39,18 @@ public class UserProfileService {
 
         return userProfileMapper.toUserProfileCreationResponse(userProfile);
 
-
-
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserProfileCreationResponse> getAll(){
         return userProfileRepository.findAll().stream().map(userProfileMapper::toUserProfileCreationResponse).toList();
+    }
+
+    public UserProfileResponse getMyProfile(){
+        var authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userId= authentication.getName();
+        var profile=userProfileRepository.findByUserId(userId);
+        return userProfileMapper.toUserProfileResponse(profile);
     }
 
 

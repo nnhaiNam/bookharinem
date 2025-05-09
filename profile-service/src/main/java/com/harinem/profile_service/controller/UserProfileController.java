@@ -1,7 +1,9 @@
 package com.harinem.profile_service.controller;
 
 import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
+import com.harinem.profile_service.dto.response.ApiResponse;
 import com.harinem.profile_service.dto.response.UserProfileCreationResponse;
+import com.harinem.profile_service.dto.response.UserProfileResponse;
 import com.harinem.profile_service.service.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,13 @@ public class UserProfileController {
     @GetMapping("/users")
     List<UserProfileCreationResponse> getAll(){
         return userProfileService.getAll();
+    }
+
+    @GetMapping("/users/my-profile")
+    ApiResponse<UserProfileResponse> getMyProfile(){
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.getMyProfile())
+                .build();
     }
 
 
