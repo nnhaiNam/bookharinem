@@ -42,7 +42,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private String[] publicEndPoints={
             "/identity/auth/.*","/identity/users/registration",
-            "/notification/email/send"};
+            "/notification/email/send",
+            "/file/media/download/.*"
+    };
 
     @Value("${app.api-prefix}")
     @NonFinal
@@ -51,6 +53,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.info(String.valueOf(exchange.getRequest()));
         if(isPublicEndpoints(exchange.getRequest())) return chain.filter(exchange);
 
 
