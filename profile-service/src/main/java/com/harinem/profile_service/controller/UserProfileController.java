@@ -1,5 +1,6 @@
 package com.harinem.profile_service.controller;
 
+import com.harinem.profile_service.dto.request.UpdateProfileRequest;
 import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
 import com.harinem.profile_service.dto.response.ApiResponse;
 import com.harinem.profile_service.dto.response.UserProfileCreationResponse;
@@ -11,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -38,6 +40,24 @@ public class UserProfileController {
                 .result(userProfileService.getMyProfile())
                 .build();
     }
+
+    @PutMapping("/users/my-profile")
+    ApiResponse<UserProfileResponse> updateMyProfile(@RequestBody UpdateProfileRequest request){
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.updateMyProfile(request))
+                .build();
+
+    }
+
+    @PutMapping("/users/avatar")
+    ApiResponse<UserProfileResponse> updateAvatar(@RequestParam("file")MultipartFile file){
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.updateAvatar(file))
+                .build();
+
+    }
+
+
 
 
 }
