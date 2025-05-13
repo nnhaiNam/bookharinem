@@ -67,15 +67,15 @@ public class UserService {
         log.info(String.valueOf(profileResponse));
 
         //Build notification events
-//        NotificationEvent notificationEvent= NotificationEvent.builder()
-//                .channel("EMAIL")
-//                .recipient(request.getEmail())
-//                .subject("Welcome to book-harinem!!")
-//                .body("Hello "+request.getUsername()+" !")
-//                .build();
+        NotificationEvent notificationEvent= NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to book-harinem!!")
+                .body("Hello "+request.getUsername()+" !")
+                .build();
 
         //Publish message to Kafka
-        //kafkaTemplate.send("notification-delivery",notificationEvent);
+        kafkaTemplate.send("notification-delivery",notificationEvent);
 
         return userMapper.toUserCreationResponse(user,profileResponse.getResult());
     }

@@ -10,6 +10,11 @@ spring:
     authentication:
       username: neo4j
       password: password
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 
 app:
   services:
