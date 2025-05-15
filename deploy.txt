@@ -1,6 +1,9 @@
 Create network:
 docker network create book-harinem-network
 
+
+==================================================================================
+
 Create container mysql:
 docker run -d --name mysql-container \
   --network=book-harinem-network \
@@ -25,6 +28,26 @@ docker run -d \
   -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT \
   -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
   bitnami/kafka:3.7.0
+
+Create container Neo4j
+docker run -d \
+  --name neo4j \
+  --network book-harinem-network \
+  -p 7474:7474 -p 7687:7687 \
+  -e NEO4J_AUTH=neo4j/password \
+  neo4j
+
+Create container mongo-db:
+docker run -d \
+  --name mongodb-container\
+  --network book-harinem-network \
+  -p 27017:27017 \
+  -e MONGODB_ROOT_USER=root \
+  -e MONGODB_ROOT_PASSWORD=root \
+  bitnami/mongodb:7.0.11
+
+
+=================================================================================
 
 Create container identity-service:
 docker run -d \
@@ -59,13 +82,7 @@ docker run -d \
   -e BASE_URL=http://identity-service:8080/identity\
   api-gateway-bookharinem
 
-Create container Neo4j
-docker run -d \
-  --name neo4j \
-  --network book-harinem-network \
-  -p 7474:7474 -p 7687:7687 \
-  -e NEO4J_AUTH=neo4j/password \
-  neo4j
+
 
 Create container profile-service:
 docker run -d \
@@ -78,14 +95,7 @@ docker run -d \
   -e FILE_SERVICE_PORT=8084 \
   profile-service-img
 
-Create container mongo-db:
-docker run -d \
-  --name mongodb-container\
-  --network book-harinem-network \
-  -p 27017:27017 \
-  -e MONGODB_ROOT_USER=root \
-  -e MONGODB_ROOT_PASSWORD=root \
-  bitnami/mongodb:7.0.11
+
 
 Create container file-service: (chạy trên powershell đừng chạy trên git bash)
 docker run -d \
@@ -112,6 +122,20 @@ docker run -d \
   -e PROFILE_SERVICE_HOST=profile-service \
   -e PROFILE_SERVICE_PORT=8081 \
   post-service-img 
+
+Create container notification-service
+docker run -d \
+  --name notification-service \
+  --network book-harinem-network \
+  -p 8082:8082 \
+  -e MONGO_USER=root \
+  -e MONGO_PASS=root \
+  -e MONGO_HOST=mongodb-container \
+  -e MONGO_PORT=27017 \
+  -e KAFKA_HOSTNAME=kafka \
+  -e KAFKA_PORT=9094 \
+  -e BREVO_API_KEY=xed \
+  notification-service-img
 
 
 

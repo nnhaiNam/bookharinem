@@ -1,0 +1,199 @@
+name: bookharinem
+services:
+    mysql-container:
+      image: mysql:latest
+      container_name: mysql-container
+      ports:
+        - "3307:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: 642004
+        MYSQL_DATABASE: identity_service
+      volumes:
+        - mysql-volume-bookharinem:/var/lib/mysql
+      networks:
+        - book-harinem-network
+      healthcheck:
+        test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p642004" ]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 20s   
+
+    kafka:
+      image: bitnami/kafka:3.7.0
+      container_name: kafka
+      hostname: kafka
+      networks:
+        - book-harinem-network
+      ports:
+        - "9094:9094"
+      environment:
+        KAFKA_CFG_NODE_ID: 0
+        KAFKA_CFG_PROCESS_ROLES: controller,broker
+        KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+        KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+        KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094
+        KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+        KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+    neo4j:
+      image: neo4j
+      container_name: neo4j
+      networks:
+        - book-harinem-network
+      ports:
+        - "7474:7474"
+        - "7687:7687"
+      environment:
+        NEO4J_AUTH: neo4j/password
+      # healthcheck:
+      #   test: ["CMD-SHELL", "wget --quiet --spider http://localhost:7474 || exit 1"]
+      #   interval: 10s
+      #   timeout: 5s
+      #   retries: 3
+      #   start_period: 15s
+    
+    mongodb-container:
+      image: bitnami/mongodb:7.0.11
+      container_name: mongodb-container
+      networks:
+       - book-harinem-network
+      ports:
+        - "27017:27017"
+      environment:
+        MONGODB_ROOT_USER: root
+        MONGODB_ROOT_PASSWORD: password
+      healthcheck:
+        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 15s
+
+
+
+
+    identity-service:
+      # build:
+      #   context: ./question-service
+      #   dockerfile: Dockerfile
+      image: identity-service-img
+      ports:
+        - "8080:8080"
+      container_name: identity-service
+      environment:
+        MYSQL_HOST: mysql-container
+        MYSQL_PORT: 3306
+        MYSQL_DB_NAME: identity_service
+        MYSQL_USER: root
+        MYSQL_PASSWORD: 642004
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        PROFILE_HOST: profile-service
+        PROFILE_PORT: 8081
+      depends_on:
+        mysql-container:
+          condition: service_healthy
+      networks:
+        - book-harinem-network
+
+    api-gateway:
+      image: api-gateway-bookharinem
+      container_name: api-gateway
+      networks:
+        - book-harinem-network
+      ports:
+        - "8888:8888"
+      environment:
+        IDENTITY_SERVICE_HOST: identity-service
+        IDENTITY_SERVICE_PORT: 8080
+        PROFILE_SERVICE_HOST: profile-service
+        PROFILE_SERVICE_PORT: 8081
+        NOTIFICATION_SERVICE_HOST: notification-service
+        NOTIFICATION_SERVICE_PORT: 8082
+        POST_SERVICE_HOST: post-service
+        POST_SERVICE_PORT: 8083
+        FILE_SERVICE_HOST: file-service
+        FILE_SERVICE_PORT: 8084
+        BASE_URL: http://identity-service:8080/identity
+
+    profile-service:
+      image: profile-service-img
+      container_name: profile-service
+      networks:
+        - book-harinem-network
+      ports:
+        - "8081:8081"
+      environment:
+        NEO4J_HOST: neo4j
+        NEO4J_PORT: 7687
+        FILE_SERVICE_HOST: file-service
+        FILE_SERVICE_PORT: 8084
+      # depends_on:
+      #   neo4j:
+      #     condition: service_healthy
+
+
+    file-service:
+      image: file-service-img
+      container_name: file-service
+      networks:
+        - book-harinem-network
+      ports:
+        - "8084:8084"
+      environment:
+        STORAGE_DIR: /app/uploads
+        MONGO_USER: root
+        MONGO_PASS: root
+        MONGO_HOST: mongodb-container
+        MONGO_PORT: 27017
+      volumes:
+        - "D:/file-upload-docker:/app/uploads"
+      depends_on:
+        mongodb-container:
+          condition: service_healthy
+
+
+    post-service:
+      image: post-service-img
+      container_name: post-service
+      networks:
+        - book-harinem-network
+      ports:
+        - "8083:8083"
+      environment:
+        MONGO_USER: root
+        MONGO_PASS: root
+        MONGO_HOST: mongodb-container
+        MONGO_PORT: 27017
+        PROFILE_SERVICE_HOST: profile-service
+        PROFILE_SERVICE_PORT: 8081
+      depends_on:
+        mongodb-container:
+          condition: service_healthy
+    
+    notification-service:
+      image: notification-service-img
+      container_name: notification-service
+      networks:
+        - book-harinem-network
+      ports:
+        - "8082:8082"
+      environment:
+        MONGO_USER: root
+        MONGO_PASS: root
+        MONGO_HOST: mongodb-container
+        MONGO_PORT: 27017
+        KAFKA_HOSTNAME: kafka
+        KAFKA_PORT: 9094
+        BREVO_API_KEY: <key>
+      depends_on:
+        mongodb-container:
+          condition: service_healthy
+
+
+networks:
+  book-harinem-network:
+    driver: bridge
+
+volumes:
+  mysql-volume-bookharinem:
