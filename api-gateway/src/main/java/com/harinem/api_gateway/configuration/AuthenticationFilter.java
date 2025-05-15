@@ -61,6 +61,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
 
         if (CollectionUtils.isEmpty(authHeader)) {
+            log.info("authHeader is empty");
             return unauthenticated(exchange.getResponse());
         }
 
@@ -74,9 +75,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             if (response.getResult().isValid()) {
                 return chain.filter(exchange);
             } else {
+                log.info("Error unexpected 1!");
                 return unauthenticated(exchange.getResponse());
             }
-        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+        }).onErrorResume(throwable -> {
+            log.error("Exception occurred during token introspection: {}", throwable.getMessage(), throwable);
+            return unauthenticated(exchange.getResponse());
+        });
 
 
     }

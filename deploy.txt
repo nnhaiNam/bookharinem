@@ -1,0 +1,119 @@
+Create network:
+docker network create book-harinem-network
+
+Create container mysql:
+docker run -d --name mysql-container \
+  --network=book-harinem-network \
+  -e MYSQL_ROOT_PASSWORD=642004 \
+  -e MYSQL_DATABASE=identity_service \
+  -p 3306:3306 \
+  -v mysql-data-bookharinem:/var/lib/mysql \
+  mysql:latest
+
+
+Create container kafka:
+docker run -d \
+  --name kafka \
+  --hostname kafka \
+  --network book-harinem-network \
+  -p 9094:9094 \
+  -e KAFKA_CFG_NODE_ID=0 \
+  -e KAFKA_CFG_PROCESS_ROLES=controller,broker \
+  -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093 \
+  -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094 \
+  -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094 \
+  -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+  -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+  bitnami/kafka:3.7.0
+
+Create container identity-service:
+docker run -d \
+  --name identity-service \
+  --network book-harinem-network \
+  -p 8080:8080 \
+  -e MYSQL_HOST=mysql-container \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DB_NAME=identity_service \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=642004 \
+  -e KAFKA_BOOTSTRAP_SERVERS=kafka:9092 \
+  -e PROFILE_HOST=profile-service \
+  -e PROFILE_PORT=8081 \
+  identity-service-img
+
+Create container api-gateway:
+docker run -d \
+  --name api-gateway \
+  --network book-harinem-network \
+  -p 8888:8888 \
+  -e IDENTITY_SERVICE_HOST=identity-service \
+  -e IDENTITY_SERVICE_PORT=8080 \
+  -e PROFILE_SERVICE_HOST=profile-service \
+  -e PROFILE_SERVICE_PORT=8081 \
+  -e NOTIFICATION_SERVICE_HOST=notification-service \
+  -e NOTIFICATION_SERVICE_PORT=8082 \
+  -e POST_SERVICE_HOST=post-service \
+  -e POST_SERVICE_PORT=8083 \
+  -e FILE_SERVICE_HOST=file-service \
+  -e FILE_SERVICE_PORT=8084 \
+  -e BASE_URL=http://identity-service:8080/identity\
+  api-gateway-bookharinem
+
+Create container Neo4j
+docker run -d \
+  --name neo4j \
+  --network book-harinem-network \
+  -p 7474:7474 -p 7687:7687 \
+  -e NEO4J_AUTH=neo4j/password \
+  neo4j
+
+Create container profile-service:
+docker run -d \
+  --name profile-service \
+  --network book-harinem-network \
+  -p 8081:8081 \
+  -e NEO4J_HOST=neo4j \
+  -e NEO4J_PORT=7687 \
+  -e FILE_SERVICE_HOST=file-service \
+  -e FILE_SERVICE_PORT=8084 \
+  profile-service-img
+
+Create container mongo-db:
+docker run -d \
+  --name mongodb-container\
+  --network book-harinem-network \
+  -p 27017:27017 \
+  -e MONGODB_ROOT_USER=root \
+  -e MONGODB_ROOT_PASSWORD=root \
+  bitnami/mongodb:7.0.11
+
+Create container file-service: (chạy trên powershell đừng chạy trên git bash)
+docker run -d \
+  --name file-service \
+  --network book-harinem-network \
+  -v "D:\file-upload-docker:/app/uploads" \
+  -p 8084:8084 \
+  -e STORAGE_DIR=/app/uploads \
+  -e MONGO_USER=root \
+  -e MONGO_PASS=root \
+  -e MONGO_HOST=mongodb-container \
+  -e MONGO_PORT=27017 \
+  file-service-img 
+
+Create container post-service
+docker run -d \
+  --name post-service \
+  --network book-harinem-network \
+  -p 8083:8083 \
+  -e MONGO_USER=root \
+  -e MONGO_PASS=root \
+  -e MONGO_HOST=mongodb-container \
+  -e MONGO_PORT=27017 \
+  -e PROFILE_SERVICE_HOST=profile-service \
+  -e PROFILE_SERVICE_PORT=8081 \
+  post-service-img 
+
+
+
+
+
