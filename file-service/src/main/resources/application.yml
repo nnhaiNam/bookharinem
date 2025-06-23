@@ -8,7 +8,8 @@ spring:
   data:
     mongodb:
       #uri: mongodb://root:root@localhost:27017/file-service?authSource=admin
-      uri: mongodb://${MONGO_USER:root}:${MONGO_PASS:root}@${MONGO_HOST:mongodb-container}:${MONGO_PORT:27017}/file-service?authSource=admin
+      #uri: mongodb://${MONGO_USER:root}:${MONGO_PASS:root}@${MONGO_HOST:mongodb-container}:${MONGO_PORT:27017}/file-service?authSource=admin
+      uri: mongodb://${MONGO_USER:root}:${MONGO_PASS:root}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/file-service?authSource=admin
   servlet:
     multipart:
       max-file-size: 10MB
@@ -18,4 +19,5 @@ spring:
 app:
   file:
     storage-dir: ${STORAGE_DIR:D:/file-service-upload}
-    download-prefix: http://localhost:8888/api/v1/file/media/download/
+    #download-prefix: http://localhost:8888/api/v1/file/media/download/
+    download-prefix: http://${DOWNLOAD-PREFIX:localhost}:${DOWNLOAD-PORT:8888}/api/v1/file/media/download/
