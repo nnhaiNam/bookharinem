@@ -99,7 +99,7 @@ pipeline{
         stage("Push Images") {
             steps {
                 script {
-                    docker.withRegistry("https://registry.hub.docker.com","dockerhub-harinem") {
+                    withDockerRegistry([ credentialsId: "dockerhub-harinem", url: "" ]) {
                         def changedServices =env.CHANGED_SERVICES.split(",")
                         def pushTasks=[:]
                         for (service in changedServices) {
