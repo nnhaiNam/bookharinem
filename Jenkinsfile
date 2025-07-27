@@ -69,7 +69,7 @@ pipeline{
         }
 
         stage("Run Unit Test") {
-            script {
+            steps {
                 echo "✅ Complete Run Unit Test!!"
             }
         }
