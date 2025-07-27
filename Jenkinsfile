@@ -23,7 +23,7 @@ pipeline{
         stage("Set Image Tag") {
             steps {
                 script {
-                    def branch= env.BRANCH? : "develop"
+                    def branch= env.BRANCH ?: "develop"
 
                     if (branch=="product") {
                         env.IMAGE_TAG = "${env.BUILD_ID}"
@@ -56,7 +56,7 @@ pipeline{
                     }
                     if(changedFiles) {
                         def changedServices=changedFiles.split("\n").collect {it.split("/")[0]}.unique().findAll { allService.contains(it) }
-                        env.CHANGED_SERVICES  = changedServices? changedServices.join(",") : allService.join(",")
+                        env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : allService.join(",")
                         echo "🎯 Services have changed: ${env.CHANGED_SERVICES}"
                     }
                     else{
