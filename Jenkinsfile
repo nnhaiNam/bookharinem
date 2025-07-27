@@ -29,7 +29,7 @@ pipeline{
                         env.IMAGE_TAG = "${env.BUILD_ID}"
                     }
                     else {
-                        def commitHash =sh(returnStdout: true, script: 'git rev-parsse --short HEAD').trim()
+                        def commitHash =sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
                         env.IMAGE_TAG = "${branch}-${commitHash}"
                         
                     }
