@@ -1,0 +1,29 @@
+package com.harinem.chat_service.controller;
+
+import com.harinem.chat_service.dto.ApiResponse;
+import com.harinem.chat_service.dto.request.ConversationRequest;
+import com.harinem.chat_service.dto.response.ConversationResponse;
+import com.harinem.chat_service.service.ConversationService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("conversations")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ConversationController {
+
+    ConversationService conversationService;
+    @PostMapping("/create")
+    ApiResponse<ConversationResponse> createConversation(@RequestBody @Valid ConversationRequest request) {
+        return ApiResponse.<ConversationResponse>builder()
+                .result(conversationService.create(request))
+                .build();
+    }
+}

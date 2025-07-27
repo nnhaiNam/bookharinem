@@ -1,5 +1,6 @@
 package com.harinem.profile_service.service;
 
+import com.harinem.profile_service.dto.request.SearchUserRequest;
 import com.harinem.profile_service.dto.request.UpdateProfileRequest;
 import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
 import com.harinem.profile_service.dto.response.UserProfileCreationResponse;
@@ -93,5 +94,14 @@ public class UserProfileService {
         profile.setAvatar(response.getResult().getUrl());
 
         return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
+    }
+
+    public List<UserProfileResponse> search(SearchUserRequest request){
+        var userId=SecurityContextHolder.getContext().getAuthentication().getName();
+        List<UserProfile> userProfiles=userProfileRepository.findAllByUserNameLike(request.getKeyword());
+        return userProfiles.stream()
+                .filter(userProfile -> !userId.equals(userProfile.getUserId()))
+                .map(userProfileMapper::toUserProfileResponse)
+                .toList();
     }
 }

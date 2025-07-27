@@ -1,5 +1,6 @@
 package com.harinem.profile_service.controller;
 
+import com.harinem.profile_service.dto.request.SearchUserRequest;
 import com.harinem.profile_service.dto.request.UpdateProfileRequest;
 import com.harinem.profile_service.dto.request.UserProfileCreationRequest;
 import com.harinem.profile_service.dto.response.ApiResponse;
@@ -55,6 +56,13 @@ public class UserProfileController {
                 .result(userProfileService.updateAvatar(file))
                 .build();
 
+    }
+
+    @PostMapping("/users/search")
+    ApiResponse<List<UserProfileResponse>> search(@RequestBody SearchUserRequest request){
+        return ApiResponse.<List<UserProfileResponse>>builder()
+                .result(userProfileService.search(request))
+                .build();
     }
 
 

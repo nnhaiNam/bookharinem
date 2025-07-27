@@ -1,9 +1,7 @@
-package com.harinem.profile_service.dto.response;
+package com.harinem.chat_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -14,10 +12,7 @@ public class UserProfileResponse {
     String id;
     String userId;
     String username;
-    String avatar;
-    String email;
     String firstName;
     String lastName;
-    LocalDate dob;
-    String city;
+    String avatar;
 }
