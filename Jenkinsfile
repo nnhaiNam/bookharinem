@@ -3,6 +3,7 @@ pipeline{
 
     environment {
         ALL_SERVICES = "api-gateway,identity-service,profile-service,notification-service,post-service,file-service"
+        USERNAME_DOCKER="harinem"
 
     }
 
@@ -85,8 +86,8 @@ pipeline{
                         def svc =service
                         buildTasks[svc] ={
                             echo "🚀 Building image for ${svc}"
-                            def imageName="${svc}-img:${env.IMAGE_TAG}"
-                            docker.build(imageName, "./${service}")
+                            def imageName="${env.USERNAME_DOCKER}/${svc}-img:${env.IMAGE_TAG}"
+                            docker.build(imageName, "./${svc}")
                         }
                         
                     }
