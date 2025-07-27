@@ -99,12 +99,16 @@ pipeline{
             steps {
                 script {
                     docker.withRegistry("https://registry.hub.docker.com","dockerhub-harinem") {
-                        def services = env.CHANGED_SERVICES.split(',')
+                        def changedServices =env.CHANGED_SERVICES.split(",")
                         def pushTasks=[:]
-                        for (svc in changedServices) {
-                            echo "📤 Pushing image ${imageName}"
-                            def imageName="${service}-img:${env.IMAGE_TAG}"
-                            sh "docker push ${imageName}"                            
+                        for (service in changedServices) {
+                            def svc=service
+                            pushTasks[svc] ={
+                                def imageName="${svc}-img:${env.IMAGE_TAG}"
+                                echo "📤 Pushing image ${imageName}"
+                                sh "docker push ${imageName}"                               
+                            }
+                                                        
                         }
                         parallel pushTasks
                     }
