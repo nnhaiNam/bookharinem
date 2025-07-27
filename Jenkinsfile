@@ -52,8 +52,8 @@ pipeline{
                         def changedFiles = sh(
                             script: "git diff --name-only HEAD~1 HEAD",
                             returnStdout: true
-                        ).trim().split("\n")
-                        
+                        ).trim()
+
                         if(changedFiles) {
                             def changedServices=changedFiles.split("\n").collect {it.split("/")[0]}.unique().findAll { allService.contains(it) }
                             env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : allService.join(",")
