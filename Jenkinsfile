@@ -82,9 +82,10 @@ pipeline{
                     def changedServices =env.CHANGED_SERVICES.split(",")
                     def buildTasks=[:]
                     for (service in changedServices) {
-                        buildTasks[service] ={
-                            echo "🚀 Building image for ${service}"
-                            def imageName="${service}-img:${env.IMAGE_TAG}"
+                        def svc =service
+                        buildTasks[svc] ={
+                            echo "🚀 Building image for ${svc}"
+                            def imageName="${svc}-img:${env.IMAGE_TAG}"
                             docker.build(imageName, "./${service}")
                         }
                         
