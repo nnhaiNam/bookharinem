@@ -105,7 +105,7 @@ pipeline{
                         for (service in changedServices) {
                             def svc=service
                             pushTasks[svc] ={
-                                def imageName="${svc}-img:${env.IMAGE_TAG}"
+                                def imageName="${env.USERNAME_DOCKER}/${svc}-img:${env.IMAGE_TAG}"
                                 echo "📤 Pushing image ${imageName}"
                                 sh "docker push ${imageName}"                               
                             }
