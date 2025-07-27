@@ -53,16 +53,18 @@ pipeline{
                             script: "git diff --name-only HEAD~1 HEAD",
                             returnStdout: true
                         ).trim().split("\n")
+                        
+                        if(changedFiles) {
+                            def changedServices=changedFiles.split("\n").collect {it.split("/")[0]}.unique().findAll { allService.contains(it) }
+                            env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : allService.join(",")
+                            echo "🎯 Services have changed: ${env.CHANGED_SERVICES}"
+                        }
+                        else {
+                            echo "No files changed compared to origin/${env.BRANCH}. Build all."
+                             env.CHANGED_SERVICES = allService.join(',')
+                        }
                     }
-                    if(changedFiles) {
-                        def changedServices=changedFiles.split("\n").collect {it.split("/")[0]}.unique().findAll { allService.contains(it) }
-                        env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : allService.join(",")
-                        echo "🎯 Services have changed: ${env.CHANGED_SERVICES}"
-                    }
-                    else{
-                         echo "No files changed compared to origin/${env.BRANCH}. Build all."
-                         env.CHANGED_SERVICES = allService.join(',')
-                    }
+                   
                      echo "🎯 List of services to build: ${env.CHANGED_SERVICES}"
                 }
             }
