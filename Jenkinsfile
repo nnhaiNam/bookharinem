@@ -57,7 +57,7 @@ pipeline{
 
                         if(changedFiles) {
                             def changedServices=changedFiles.split("\n").collect {it.split("/")[0]}.unique().findAll { allService.contains(it) }
-                            env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : allService.join(",")
+                            env.CHANGED_SERVICES  = changedServices ? changedServices.join(",") : ""
                             echo "🎯 Services have changed: ${env.CHANGED_SERVICES}"
                         }
                         else {
@@ -80,6 +80,12 @@ pipeline{
         stage("Build images") {
             steps {
                 script {
+
+                    if(!env.CHANGED_SERVICES || env.CHANGED_SERVICES.trim() == ""){
+                        echo "❌ No changed services detected. Skipping image build."
+                        return
+                    }
+
                     def changedServices =env.CHANGED_SERVICES.split(",")
                     def buildTasks=[:]
                     for (service in changedServices) {
@@ -98,7 +104,12 @@ pipeline{
 
         stage("Push Images") {
             steps {
-                script {
+                script {   
+                    if(!env.CHANGED_SERVICES || env.CHANGED_SERVICES.trim() == ""){
+                        echo "❌ No changed services detected. Skipping push image."
+                        return
+
+                    }
                     withDockerRegistry([ credentialsId: "dockerhub-harinem", url: "" ]) {
                         def changedServices =env.CHANGED_SERVICES.split(",")
                         def pushTasks=[:]
@@ -119,14 +130,15 @@ pipeline{
             }
         }
 
-        // stage("Trigger ManifestUpdate") {
-        //     steps {
-        //         echo "Triggering updatemanifest job"
-        //         build job: "updatemanifest", parameters: [
-        //             string(name: "DOCKERTAG", value: env.BUILD_NUMBER)
-        //         ]
-        //     }
-        // }
+        stage("Trigger ManifestUpdate") {
+            steps {
+                echo "Triggering updatemanifest job"
+                build job: "update-manifest-book-review", parameters: [
+                    string(name: "DOCKERTAG", value: env.IMAGE_TAG),
+                    string(name: "CHANGED_SERVICES", value: env.CHANGED_SERVICES)
+                ]
+            }
+        }
     }
 
 }
