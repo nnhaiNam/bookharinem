@@ -133,7 +133,7 @@ pipeline{
         stage("Trigger ManifestUpdate") {
             steps {
                 echo "Triggering updatemanifest job"
-                build job: "update-manifest-book-review", parameters: [
+                build job: "update-manifest-book-review/develop", parameters: [
                     string(name: "DOCKERTAG", value: env.IMAGE_TAG),
                     string(name: "CHANGED_SERVICES", value: env.CHANGED_SERVICES)
                 ]
